@@ -1,0 +1,8 @@
+postgres:
+  image: postgres:9.6.3
+  environment:
+    - POSTGRES_USER=developer
+    - POSTGRES_PASSWORD=development_secret
+    - POSTGRES_DB=programexecutor
+  ports:
+    - 5435:5432
