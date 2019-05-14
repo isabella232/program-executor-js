@@ -11,7 +11,7 @@ class QueueManager {
 
   async queueProgram(queueData) {
     try {
-      const rabbit = await RabbitMq.create(this._amqpUrl, this._queueName, 'default');
+      const rabbit = await RabbitMq.create({ default: { url: this._amqpUrl } }, this._queueName, 'default');
       rabbit.insert(queueData, { timestamp: new Date().getTime() });
     } catch (error) {
       logger.fromError('queue-error', error, { queue_name: this._queueName });

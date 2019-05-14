@@ -11,8 +11,7 @@ describe('Queue-Manager', function() {
 
   beforeEach(function() {
     rabbitMock = {
-      insert: this.sandbox.stub().resolves(true),
-      insertWithGroupBy: this.sandbox.stub().resolves(true)
+      insert: this.sandbox.stub().resolves(true)
     };
 
     this.sandbox.stub(RabbitMq, 'create').resolves(rabbitMock);
@@ -25,7 +24,7 @@ describe('Queue-Manager', function() {
 
       await queueManager.queueProgram(queueData);
 
-      expect(RabbitMq.create).to.have.been.calledWith(testAmqpUrl, testChannelName);
+      expect(RabbitMq.create).to.have.been.calledWith({ default: { url: testAmqpUrl } }, testChannelName);
       expect(rabbitMock.insert).to.have.been.calledWith(queueData);
     });
   });
