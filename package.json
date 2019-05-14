@@ -18,12 +18,13 @@
   "license": "ISC",
   "dependencies": {
     "@emartech/rabbitmq-client": "3.1.1",
-    "camelcase-keys": "5.2.0"
+    "camelcase-keys": "5.2.0",
   },
   "engines": {
     "node": "12.2.0"
   },
   "devDependencies": {
+    "semantic-release": "15.13.12",
     "mocha": "6.1.4",
     "knex": "0.16.5",
     "pg": "7.11.0",
