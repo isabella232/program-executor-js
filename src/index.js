@@ -1,6 +1,8 @@
 'use strict';
 
 const ProgramHandler = require('./program-handler');
+const ProgramsRepository = require('./repositories/programs');
+const QueueManager = require('./queue-manager');
 
 class ProgramExecutor {
   /**
@@ -12,6 +14,8 @@ class ProgramExecutor {
    */
   constructor(config) {
     this._config = config;
+    this._programsRepository = ProgramsRepository.create(config.knex, config.tableName);
+    this._queueManager = QueueManager.create(config.amqpUrl, config.queueName);
   }
 
   /**
@@ -21,7 +25,7 @@ class ProgramExecutor {
    * @param {object} object.jobsData
    */
   createProgram(data) {
-    return ProgramHandler.create(this._config).createProgram(data);
+    return ProgramHandler.create(this._programsRepository, this._queueManager).createProgram(data);
   }
 
   static create(config) {

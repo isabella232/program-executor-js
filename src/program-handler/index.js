@@ -1,13 +1,11 @@
 'use strict';
 
 const RunIdGenerator = require('../runid-generator');
-const QueueManager = require('../queue-manager');
-const ProgramsRepository = require('../repositories/programs');
 
 class ProgramHandler {
-  constructor({ knex, amqpUrl, tableName, queueName }) {
-    this._programsRepository = ProgramsRepository.create(knex, tableName);
-    this._queueManager = QueueManager.create(amqpUrl, queueName);
+  constructor(programsRepository, queueManager) {
+    this._programsRepository = programsRepository;
+    this._queueManager = queueManager;
   }
 
   async createProgram({ programData, jobs, jobData = {} }) {
@@ -55,8 +53,8 @@ class ProgramHandler {
     return this._programsRepository.setJobDataByRunId(runId, jobData);
   }
 
-  static create(config) {
-    return new ProgramHandler(config);
+  static create(programsRepository, queueManager) {
+    return new ProgramHandler(programsRepository, queueManager);
   }
 }
 

@@ -8,35 +8,21 @@ const hostname = 'yolo.myshopify.com';
 const customerId = 123;
 
 describe('ProgramHandler', function() {
-  let queueProgramStub;
   let programsRepository;
-  let programHandlerConfig;
+  let queueManager;
+  let queueProgramStub;
 
   beforeEach(async function() {
     programsRepository = ProgramsRepository.create(this.db, 'programs');
-    this.sandbox.spy(QueueManager, 'create');
+    queueManager = QueueManager.create('amqp://guest:guest@localhost:9999', 'program-executor');
     queueProgramStub = this.sandbox.stub(QueueManager.prototype, 'queueProgram').resolves(true);
-    programHandlerConfig = {
-      knex: this.db,
-      tableName: 'programs',
-      queueName: 'program-executor',
-      amqpUrl: 'amqp://guest:guest@localhost:9999'
-    };
   });
 
   describe('#createProgram', async function() {
-    it('should use the given rabbitMq and channel', async function() {
-      await ProgramHandler.create(programHandlerConfig).createProgram({
-        jobs: ['current_program', 'next_program']
-      });
-
-      expect(QueueManager.create).to.have.been.calledWith(programHandlerConfig.amqpUrl, programHandlerConfig.queueName);
-    });
-
     it('should create a program with the given jobs and program data', async function() {
       const programData = { test: 'data' };
 
-      await ProgramHandler.create(programHandlerConfig).createProgram({
+      await ProgramHandler.create(programsRepository, queueManager).createProgram({
         programData,
         jobs: ['current_program', 'next_program']
       });
@@ -48,7 +34,7 @@ describe('ProgramHandler', function() {
     });
 
     it('should save program in db', async function() {
-      const runId = await ProgramHandler.create(programHandlerConfig).createProgram({
+      const runId = await ProgramHandler.create(programsRepository, queueManager).createProgram({
         jobs: ['current_program', 'next_program']
       });
       const program = await programsRepository.getProgramByRunId(runId);
@@ -57,7 +43,7 @@ describe('ProgramHandler', function() {
     });
 
     it('should save program data in db', async function() {
-      const runId = await ProgramHandler.create(programHandlerConfig).createProgram({
+      const runId = await ProgramHandler.create(programsRepository, queueManager).createProgram({
         programData: {
           hostname,
           customerId
@@ -77,7 +63,7 @@ describe('ProgramHandler', function() {
         }
       };
 
-      const runId = await ProgramHandler.create(programHandlerConfig).createProgram({
+      const runId = await ProgramHandler.create(programsRepository, queueManager).createProgram({
         jobs: ['current_program', 'next_program'],
         jobData
       });
@@ -87,13 +73,15 @@ describe('ProgramHandler', function() {
     });
 
     it('should generate a runid for the program', async function() {
-      await ProgramHandler.create(programHandlerConfig).createProgram({ jobs: ['current_program', 'next_program'] });
+      await ProgramHandler.create(programsRepository, queueManager).createProgram({
+        jobs: ['current_program', 'next_program']
+      });
 
       expect(queueProgramStub.lastCall.lastArg.runId).not.to.be.undefined;
     });
 
     it('should return the generated runid', async function() {
-      const result = await ProgramHandler.create(programHandlerConfig).createProgram({
+      const result = await ProgramHandler.create(programsRepository, queueManager).createProgram({
         jobs: ['current_program', 'next_program']
       });
 
@@ -104,7 +92,7 @@ describe('ProgramHandler', function() {
 
   describe('#finishProgram', async function() {
     it('should set job to finished in db', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
 
       const runId = await programHandler.createProgram({
         programData: {},
@@ -119,7 +107,7 @@ describe('ProgramHandler', function() {
 
   describe('#getJobData', async function() {
     it('should get program data for runid and program name', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
       });
@@ -132,7 +120,7 @@ describe('ProgramHandler', function() {
 
   describe('#setProgramToError', async function() {
     it('should set job to errored in db', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
 
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
@@ -147,7 +135,7 @@ describe('ProgramHandler', function() {
 
   describe('#isProgramFinishedWithError', async function() {
     it('should return true if erroredAt is not null', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
 
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
@@ -159,7 +147,7 @@ describe('ProgramHandler', function() {
     });
 
     it('should return false if erroredAt is null', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
 
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
@@ -172,7 +160,7 @@ describe('ProgramHandler', function() {
 
   describe('#setJobRetriableErrorMessage', async function() {
     it('should set program to errored in db', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
 
       const runId = await programHandler.createProgram({
         jobs: ['a', 'b']
@@ -188,7 +176,7 @@ describe('ProgramHandler', function() {
 
   describe('#incrementStep', async function() {
     it('should increment step', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
 
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
@@ -202,7 +190,7 @@ describe('ProgramHandler', function() {
 
   describe('#incrementStepRetryCount', async function() {
     it('should increment StepRetryCount', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
 
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
@@ -216,7 +204,7 @@ describe('ProgramHandler', function() {
 
   describe('#updateJobData', async function() {
     it('should update job data related to jobName', async function() {
-      const programHandler = ProgramHandler.create(programHandlerConfig);
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
       });
