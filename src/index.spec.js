@@ -59,7 +59,7 @@ describe('ProgramExecutor', function() {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       expect(ProgramExecutorProcessor.create).to.have.been.calledWith(
-        this.sinon.match.instanceOf(ProgramsRepository),
+        this.sinon.match.instanceOf(ProgramHandler),
         this.sinon.match.instanceOf(QueueManager),
         testJobLibrary
       );

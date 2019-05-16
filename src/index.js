@@ -33,7 +33,7 @@ class ProgramExecutor {
 
   processPrograms(jobLibrary) {
     const programExecutorProcessor = require('./program-executor-processor').create(
-      this._programsRepository,
+      this._programHandler,
       this._queueManager,
       jobLibrary
     );
