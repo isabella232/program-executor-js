@@ -143,9 +143,33 @@ module.exports = SampleJob;
 ```
 
 ## Error handling
-### Unexpected errors
+Generally unhandled job errors will bubble up to the executor where further execution of the program will be terminated. [See bookkeeping](#bookkeeping).
+
+The executor can handle retryable and ignorable errors.
 ### Retryable errors
-### Ignorable errors
+On transient errors a job can throw a retryable error, so the executor will restart program execution from the specific job. Using the `jobDataHandler` the job may implement logic so that the job resumes from a stored progress (ie. `{ currentPage: 50, totalPages: 200 }`).
+
+You may use the `RetryableError` exposed by this library, or throw any other error with a property `retryable: true`.
+
+Example RetryableError implementation:
+```javascript
+class RetryableError extends Error {
+  constructor(message, code) {
+    super();
+    this.message = message;
+    this.code = code;
+    RetryableError.decorate(this);
+  }
+
+  static decorate(error) {
+    error.retryable = true;
+    return error;
+  }
+}
+
+module.exports = RetryableError;
+
+```
 
 # Job library
 Job Library is a javascript object containing jobs identified by the job name. Program executor instatiates and executes jobs from the library while working on a program.
@@ -188,6 +212,7 @@ glob.sync('./server/lib/jobs/+(common|other|folders)/*/index.js').forEach(functi
 });
 ```
 # Manually stopping a program
+To stop a stucked program and remove it from RabbitMq you may set the program's `errored_at` column manually in the database, and the program will be thrown away in the next execution cycle.
 
 # Development
 ## Default Commit Message Format
