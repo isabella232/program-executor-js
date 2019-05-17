@@ -81,8 +81,24 @@ throng(id => {
   ProgramExecutor.create(config).processPrograms(jobLibrary);
 });
 ```
+
 ## Built-in logging
-TBD
+This library is using `@emartech/json-logger`, so in order to see the logs you have to enable the program-executor namespace (`DEBUG=...,program-executor*,...`) in your environment.
+
+If a program execution fails search for the following pattern in your logs:
+
+```javascript
+{
+  "name": "program-executor-<queueName>-consumer",
+  "action": "Consumer error finish",
+  "event": "Consumer error finish",
+  "error_message": "...",
+  "error_stack": "...",
+  "content": "<whole RabbitMQ message>"
+}
+```
+
+Also you may build metrics on `"Consumer error retry"` events.
 
 # Progam
 A program is a list of jobs to be executed in serial order. Jobs may depend on other job's results higher in the order, beacuse of the serial execution. **If any job fails to execute successfully the program will be cancelled, the error will be logged and the remaining jobs will be skipped.**
