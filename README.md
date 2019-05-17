@@ -108,9 +108,40 @@ The following information will be managed for every program in the configured da
 | created_at | Date | Timestamp of program creation.
 
 # Job
-## Anatomy, interface
-## Program data in consturctor
-## Job data, get/set methods
+
+A job is a individually executable part of a program. It's referred by its name in a program, therefore it has to expose its **globally unique** name, a static `create` method that instantiates the job, and an `execute` method.
+
+* `create()` will be called with the `programData` object that may contain globally available data of the program.
+* `execute()` will be called with the queue message and the corresponding `jobDataHanlder`. `jobDataHandler` is used to manage data specific for the job.
+
+## Anatomy
+```javascript
+class SampleJob {
+  static get name() {
+    return 'sample_job_name';
+  }
+
+  static create(programData) {
+    return new SampleJob(programData);
+  }
+
+  constructor(programData) {
+    /// ... intitialize member variables based on programData if needed
+  }
+
+  async execute(message, jobDataHandler) {
+    const jobSpecificData = await jobDataHandler.get();
+
+    /// ... do some processing
+
+    await jobDataHandler.set({ stored: 'progress' });
+  }
+}
+
+module.exports = SampleJob;
+
+```
+
 ## Error handling
 ### Unexpected errors
 ### Retryable errors
