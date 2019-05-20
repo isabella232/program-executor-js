@@ -128,7 +128,7 @@ The following information will be managed for every program in the configured da
 A job is a individually executable part of a program. It's referred by its name in a program, therefore it has to expose its **globally unique** name, a static `create` method that instantiates the job, and an `execute` method.
 
 * `create()` will be called with the `programData` object that may contain globally available data of the program.
-* `execute()` will be called with the queue message and the corresponding `jobDataHanlder`. `jobDataHandler` is used to manage data specific for the job.
+* `execute()` will be called with the queue message and the corresponding `jobDataHandler`. `jobDataHandler` is used to manage data specific for the job.
 
 ## Anatomy
 ```javascript
