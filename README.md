@@ -1,4 +1,4 @@
-# Program Executor JS
+# Program Executor JS [![npm version](https://badge.fury.io/js/%40emartech%2Fprogram-executor.svg)](https://badge.fury.io/js/%40emartech%2Fprogram-executor) [![Codeship Status for emartech/program-executor-js](https://app.codeship.com/projects/54a48ad0-585e-0137-fd0d-7a4a3edc3b8c/status?branch=master)](https://app.codeship.com/projects/341917)
 Program executor is a scalable, resilient job framework that is capable of concurrently executing programs, while jobs inside a program are executed in order. Execution can be distributed between resources (multiple workers/threads). It is fault tolerant by storing its progress, so it can continue execution in case of failures.
 
 # Prerequisites
