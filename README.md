@@ -21,7 +21,7 @@ Program executor is a scalable, resilient job framework that is capable of concu
 | `queueName` | true | RabbitMQ queue used by the executor. The queue is created automatically if it does not exist.
 
 ```javascript
-const ProgramExecutor = require('@emartech/program-executor');
+const { ProgramExecutor } = require('@emartech/program-executor');
 
 const config = {
   knex: require('knex')({
@@ -165,7 +165,11 @@ The executor can handle retryable and ignorable errors.
 ### Retryable errors
 On transient errors a job can throw a retryable error, so the executor will restart program execution from the specific job. Using the `jobDataHandler` the job may implement logic so that the job resumes from a stored progress (ie. `{ currentPage: 50, totalPages: 200 }`).
 
-You may use the `RetryableError` exposed by this library, or throw any other error with a property `retryable: true`.
+You may use the `RetryableError` exposed by this library
+
+`const { RetryableError } = require('@emartech/program-executor');`
+
+or throw any other error with a property `retryable: true`.
 
 Example RetryableError implementation:
 ```javascript
