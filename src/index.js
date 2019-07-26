@@ -50,11 +50,7 @@ class ProgramExecutor {
             try {
               await programExecutorProcessor.process(message);
             } catch (error) {
-              ['error_message', 'error_stack'].forEach(field => {
-                if (error[field]) {
-                  error[field] = error[field].substring(0, 255);
-                }
-              });
+              error.message = error.message.substring(0, 255);
               throw error;
             }
           }
