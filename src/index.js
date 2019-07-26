@@ -47,7 +47,16 @@ class ProgramExecutor {
           prefetchCount: 1,
           retryTime: 60000,
           onMessage: async message => {
-            await programExecutorProcessor.process(message);
+            try {
+              await programExecutorProcessor.process(message);
+            } catch (error) {
+              ['error_message', 'error_stack'].forEach(field => {
+                if (error[field]) {
+                  error[field] = error[field].substring(0, 255);
+                }
+              });
+              throw error;
+            }
           }
         }
       )

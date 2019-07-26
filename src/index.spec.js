@@ -102,6 +102,27 @@ describe('ProgramExecutor', function() {
       expect(ProgramExecutorProcessor.prototype.process).to.have.been.calledWith({ random: 'message' });
     });
 
+    it('should truncate log messages to avoid splitting by heroku', async function() {
+      const veryLongError = new Error('This is a very long error message');
+      veryLongError.error_message = '1'.repeat(100000);
+      veryLongError.error_stack = '1'.repeat(100000);
+
+      ProgramExecutorProcessor.prototype.process.rejects(veryLongError);
+
+      let caughtError;
+      try {
+        await ProgramExecutor.create(config).processPrograms(testJobLibrary);
+        const onMessageFunction = Consumer.create.lastCall.args[1].onMessage;
+        await onMessageFunction({ random: 'message' });
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).not.to.be.undefined;
+      expect(caughtError.error_message.length).to.eql(255);
+      expect(caughtError.error_stack.length).to.eql(255);
+    });
+
     it('should start processing', async function() {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
