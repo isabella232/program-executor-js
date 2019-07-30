@@ -100,8 +100,8 @@ If a program execution fails search for the following pattern in your logs:
 
 Also you may build metrics on `"Consumer error retry"` events.
 
-# Progam
-A program is a list of jobs to be executed in serial order. Jobs may depend on other job's results higher in the order, beacuse of the serial execution. **If any job fails to execute successfully the program will be cancelled, the error will be logged and the remaining jobs will be skipped.**
+# Program
+A program is a list of jobs to be executed in serial order. Jobs may depend on other job's results higher in the order, because of the serial execution. **If any job fails to execute successfully the program will be cancelled, the error will be logged and the remaining jobs will be skipped.**
 
 Programs can be executed concurrently, therefore cannot depend on each other. However a job in a program may start another program.
 
@@ -142,7 +142,7 @@ class SampleJob {
   }
 
   constructor(programData) {
-    /// ... intitialize member variables based on programData if needed
+    /// ... initialize member variables based on programData if needed
   }
 
   async execute(message, jobDataHandler) {
@@ -192,7 +192,7 @@ module.exports = RetryableError;
 ```
 
 # Job library
-Job Library is a javascript object containing jobs identified by the job name. Program executor instatiates and executes jobs from the library while working on a program.
+Job Library is a javascript object containing jobs identified by the job name. Program executor instantiates and executes jobs from the library while working on a program.
 
 ## Anatomy
 ```javascript
@@ -232,7 +232,7 @@ glob.sync('./server/lib/jobs/+(common|other|folders)/*/index.js').forEach(functi
 });
 ```
 # Manually stopping a program
-To stop a stucked program and remove it from RabbitMq you may set the program's `errored_at` column manually in the database, and the program will be thrown away in the next execution cycle.
+To stop a stuck program and remove it from RabbitMq you may set the program's `errored_at` column manually in the database, and the program will be thrown away in the next execution cycle.
 
 # Development
 ## Default Commit Message Format
