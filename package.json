@@ -18,7 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "@emartech/rabbitmq-client": "3.1.2",
-    "camelcase-keys": "6.0.0"
+    "camelcase-keys": "6.0.1"
   },
   "engines": {
     "node": "12.2.0"
