@@ -120,6 +120,24 @@ describe('ProgramExecutor', function() {
       expect(caughtError.message.length).to.eql(255);
     });
 
+    it('should emit an error event', function(done) {
+      const sampleError = new Error('Error to be emitted');
+
+      ProgramExecutorProcessor.prototype.process.rejects(sampleError);
+
+      const programExecutor = ProgramExecutor.create(config);
+
+      programExecutor.on('programError', function({ error, message }) {
+        expect(message).to.eql({ random: 'message' });
+        expect(error.message).to.eql('Error to be emitted');
+        done();
+      });
+
+      programExecutor.processPrograms(testJobLibrary);
+      const onMessageFunction = Consumer.create.lastCall.args[1].onMessage;
+      onMessageFunction({ random: 'message' }).catch(()=> {});
+    });
+
     it('should start processing', async function() {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 

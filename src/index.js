@@ -1,12 +1,13 @@
 'use strict';
 
 const consumer = require('@emartech/rabbitmq-client').Consumer;
+const EventEmitter = require('events');
 
 const ProgramHandler = require('./program-handler');
 const ProgramsRepository = require('./repositories/programs');
 const QueueManager = require('./queue-manager');
 
-class ProgramExecutor {
+class ProgramExecutor extends EventEmitter {
   /**
    * @param {object} config
    * @param {object} config.knex - Connected Knex instance
@@ -15,6 +16,7 @@ class ProgramExecutor {
    * @param {string} config.queueName - Queue name to publish to
    */
   constructor(config) {
+    super();
     this._config = config;
     this._programsRepository = ProgramsRepository.create(config.knex, config.tableName);
     this._queueManager = QueueManager.create(config.amqpUrl, config.queueName);
@@ -32,6 +34,8 @@ class ProgramExecutor {
   }
 
   processPrograms(jobLibrary) {
+    const eventEmitter = this; // eslint-disable-line consistent-this
+
     const programExecutorProcessor = require('./program-executor-processor').create(
       this._programHandler,
       this._queueManager,
@@ -50,6 +54,7 @@ class ProgramExecutor {
             try {
               await programExecutorProcessor.process(message);
             } catch (error) {
+              eventEmitter.emit('programError', { message, error });
               error.message = error.message.substring(0, 255);
               throw error;
             }
