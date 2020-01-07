@@ -18,7 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "@emartech/rabbitmq-client": "3.1.2",
-    "camelcase-keys": "6.0.1"
+    "camelcase-keys": "6.1.1"
   },
   "engines": {
     "node": "12.2.0"
@@ -29,17 +29,17 @@
     "chai-string": "1.5.0",
     "chai-subset": "1.6.0",
     "deep-equal-in-any-order": "1.0.21",
-    "dotenv": "8.1.0",
-    "eslint": "6.2.2",
+    "dotenv": "8.2.0",
+    "eslint": "6.8.0",
     "eslint-config-emarsys": "5.1.0",
-    "eslint-plugin-mocha": "6.1.0",
-    "eslint-plugin-no-only-tests": "2.3.1",
+    "eslint-plugin-mocha": "6.2.2",
+    "eslint-plugin-no-only-tests": "2.4.0",
     "eslint-plugin-security": "1.4.0",
     "knex": "0.19.5",
-    "mocha": "6.2.0",
-    "pg": "7.12.1",
-    "semantic-release": "15.13.24",
-    "sinon": "7.4.1",
-    "sinon-chai": "3.3.0"
+    "mocha": "7.0.0",
+    "pg": "7.17.0",
+    "semantic-release": "15.14.0",
+    "sinon": "8.0.4",
+    "sinon-chai": "3.4.0"
   }
 }
