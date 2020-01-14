@@ -150,7 +150,11 @@ class SampleJob {
 
     /// ... do some processing
 
+    // to update the job data with a new object:
     await jobDataHandler.set({ stored: 'progress' });
+    // or to partially update job data:
+    // (later properties overwrite earlier properties with the same name):
+    await jobDataHandler.merge({ stored: 'progress' });
   }
 }
 

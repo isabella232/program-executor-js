@@ -45,10 +45,11 @@ class ProgramHandler {
     return this._programsRepository.incrementStepRetryCount(runId);
   }
 
-  async updateJobData(runId, jobName, payload) {
+  async updateJobData(runId, jobName, payload, merge = false) {
     const program = await this._programsRepository.getProgramByRunId(runId);
     const { jobData } = program;
-    jobData[jobName] = payload;
+
+    jobData[jobName] = merge ? { ...jobData[jobName], ...payload } : payload;
 
     return this._programsRepository.setJobDataByRunId(runId, jobData);
   }

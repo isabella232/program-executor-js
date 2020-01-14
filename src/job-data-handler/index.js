@@ -15,6 +15,10 @@ class JobDataHandler {
     return this._programHandler.updateJobData(this._runId, this._job, newJobData);
   }
 
+  merge(partialJobData) {
+    return this._programHandler.updateJobData(this._runId, this._job, partialJobData, true);
+  }
+
   static create(programHandler, runId, program) {
     return new JobDataHandler(programHandler, runId, program);
   }

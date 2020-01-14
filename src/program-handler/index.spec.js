@@ -203,17 +203,33 @@ describe('ProgramHandler', function() {
   });
 
   describe('#updateJobData', async function() {
-    it('should update job data related to jobName', async function() {
+    it('should update job data related to jobName overwriting the full payload', async function() {
       const programHandler = ProgramHandler.create(programsRepository, queueManager);
       const runId = await programHandler.createProgram({
         jobs: ['current_program', 'next_program']
       });
 
+      await programHandler.updateJobData(runId, 'contact-sync', { this_will_be_gone: ':(' });
       await programHandler.updateJobData(runId, 'contact-sync', { page: 10 });
 
       const program = await programsRepository.getProgramByRunId(runId);
       expect(program.jobData).to.eql({
         'contact-sync': { page: 10 }
+      });
+    });
+
+    it('should update job data related to jobName merging the payload', async function() {
+      const programHandler = ProgramHandler.create(programsRepository, queueManager);
+      const runId = await programHandler.createProgram({
+        jobs: ['current_program', 'next_program']
+      });
+
+      await programHandler.updateJobData(runId, 'contact-sync', { this_wont_be_gone: ':)', page: 9 }, true);
+      await programHandler.updateJobData(runId, 'contact-sync', { page: 10 }, true);
+
+      const program = await programsRepository.getProgramByRunId(runId);
+      expect(program.jobData).to.eql({
+        'contact-sync': { this_wont_be_gone: ':)', page: 10 }
       });
     });
   });
