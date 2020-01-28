@@ -22,11 +22,11 @@ class ProgramsRepository {
   finishProgram(runId) {
     return this._db(this._tableName)
       .where({ run_id: runId })
-      .update({ finished_at: new Date(), step_retry_count: 0 });
+      .update({ updated_at: new Date(), finished_at: new Date(), step_retry_count: 0 });
   }
 
   setProgramToError(runId, errorMessage, shouldSetErroredAt = true) {
-    const updateQuery = { error_message: errorMessage.slice(0, 255) };
+    const updateQuery = { error_message: errorMessage.slice(0, 255), updated_at: new Date() };
 
     if (shouldSetErroredAt) {
       updateQuery.errored_at = new Date();
@@ -41,6 +41,7 @@ class ProgramsRepository {
     return this._db(this._tableName)
       .where({ run_id: runId })
       .update({
+        updated_at: new Date(),
         step_retry_count: 0,
         step: this._db.raw('step + 1')
       });
@@ -49,6 +50,7 @@ class ProgramsRepository {
   incrementStepRetryCount(runId) {
     return this._db(this._tableName)
       .where({ run_id: runId })
+      .update({ updated_at: new Date() })
       .increment('step_retry_count', 1);
   }
 
@@ -68,6 +70,7 @@ class ProgramsRepository {
     return this._db(this._tableName)
       .where({ run_id: runId })
       .update({
+        updated_at: new Date(),
         job_data: JSON.stringify(jobData)
       });
   }

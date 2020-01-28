@@ -11,6 +11,18 @@ const runId = '9123434';
 
 describe('ProgramsRepository', () => {
   let programsRepository;
+  let resetUpdatedAt;
+
+  before(function() {
+    resetUpdatedAt = async runId => {
+      const oldDate = new Date(0);
+      await this.db('programs')
+        .where({ run_id: runId })
+        .update({ updated_at: oldDate });
+
+      return oldDate;
+    };
+  });
 
   beforeEach(function() {
     programsRepository = ProgramsRepository.create(this.db, 'programs');
@@ -57,33 +69,45 @@ describe('ProgramsRepository', () => {
     it('should set finished_at and reset retry counter', async function() {
       await programsRepository.save(runId, programData, ['a']);
       await programsRepository.incrementStepRetryCount(runId);
+
+      const oldDate = await resetUpdatedAt(runId);
+
       await programsRepository.finishProgram(runId);
 
       const result = await programsRepository.getProgramByRunId(runId);
       expect(result.finishedAt).not.to.eql(null);
       expect(result.stepRetryCount).to.equal(0);
+      expect(result.updatedAt.toString()).not.to.equal(oldDate.toString());
     });
   });
 
   describe('#setProgramToError', () => {
     it('should set errored_at and error_message without setting finished_at', async function() {
       await programsRepository.save(runId, programData, ['a']);
+
+      const oldDate = await resetUpdatedAt(runId);
+
       await programsRepository.setProgramToError(runId, 'Something wrong happened!');
 
       const result = await programsRepository.getProgramByRunId(runId);
       expect(result.finishedAt).to.eql(null);
       expect(result.erroredAt).not.to.eql(null);
       expect(result.errorMessage).to.eql('Something wrong happened!');
+      expect(result.updatedAt.toString()).not.to.equal(oldDate.toString());
     });
 
-    it('should set and error_message without setting finished_at or errored_at', async function() {
+    it('should set and error_message and updated_at without setting finished_at or errored_at', async function() {
       await programsRepository.save(runId, programData, ['a']);
+
+      const oldDate = await resetUpdatedAt(runId);
+
       await programsRepository.setProgramToError(runId, 'Something wrong happened!', false);
 
       const result = await programsRepository.getProgramByRunId(runId);
       expect(result.finishedAt).to.eql(null);
       expect(result.erroredAt).to.eql(null);
       expect(result.errorMessage).to.eql('Something wrong happened!');
+      expect(result.updatedAt.toString()).not.to.equal(oldDate.toString());
     });
 
     it('should trim error message', async function() {
@@ -110,10 +134,12 @@ describe('ProgramsRepository', () => {
       const result = await programsRepository.getProgramByRunId(runId);
       expect(result.step).to.eql(0);
 
+      const oldDate = await resetUpdatedAt(runId);
       await programsRepository.incrementStep(runId);
       const incrementedResult = await programsRepository.getProgramByRunId(runId);
       expect(incrementedResult.step).to.equal(1);
       expect(incrementedResult.stepRetryCount).to.equal(0);
+      expect(incrementedResult.updatedAt.toString()).not.to.equal(oldDate.toString());
     });
   });
 
@@ -123,9 +149,11 @@ describe('ProgramsRepository', () => {
       const result = await programsRepository.getProgramByRunId(runId);
       expect(result.stepRetryCount).to.eql(0);
 
+      const oldDate = await resetUpdatedAt(runId);
       await programsRepository.incrementStepRetryCount(runId);
       const incrementedResult = await programsRepository.getProgramByRunId(runId);
       expect(incrementedResult.stepRetryCount).to.equal(1);
+      expect(incrementedResult.updatedAt.toString()).not.to.equal(oldDate.toString());
     });
   });
 
@@ -155,6 +183,7 @@ describe('ProgramsRepository', () => {
       const jobs = ['a', 'b'];
       await programsRepository.save(runId, programData, jobs);
 
+      const oldDate = await resetUpdatedAt(runId);
       await programsRepository.setJobDataByRunId(runId, { product_sync: { page: 1 } });
       const result = await programsRepository.getProgramByRunId(runId);
 
@@ -162,6 +191,7 @@ describe('ProgramsRepository', () => {
         runId: runId,
         jobData: { product_sync: { page: 1 } }
       });
+      expect(result.updatedAt.toString()).not.to.equal(oldDate.toString());
     });
   });
 
