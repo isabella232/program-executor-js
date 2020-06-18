@@ -50,7 +50,7 @@ class ProgramExecutor extends EventEmitter {
           channel: this._config.queueName,
           prefetchCount: 1,
           retryTime: 60000,
-          onMessage: async message => {
+          onMessage: async (message) => {
             try {
               await programExecutorProcessor.process(message);
             } catch (error) {

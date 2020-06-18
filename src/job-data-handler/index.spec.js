@@ -2,18 +2,18 @@
 
 const JobDataHandler = require('./');
 
-describe('JobDataHandler', function() {
+describe('JobDataHandler', function () {
   let programHandlerStub;
 
-  beforeEach(function() {
+  beforeEach(function () {
     programHandlerStub = {
       getJobData: this.sandbox.stub().resolves(true),
       updateJobData: this.sandbox.stub().resolves(true)
     };
   });
 
-  describe('get', function() {
-    it('should call getJobData with the right parameters', async function() {
+  describe('get', function () {
+    it('should call getJobData with the right parameters', async function () {
       const runId = '1';
       const program = 'product_sync';
 
@@ -23,8 +23,8 @@ describe('JobDataHandler', function() {
     });
   });
 
-  describe('set', function() {
-    it('should call updateJobData with the right parameters', async function() {
+  describe('set', function () {
+    it('should call updateJobData with the right parameters', async function () {
       const runId = '1';
       const program = 'product_sync';
 
@@ -34,8 +34,8 @@ describe('JobDataHandler', function() {
     });
   });
 
-  describe('merge', function() {
-    it('should call updateJobData with the right parameters', async function() {
+  describe('merge', function () {
+    it('should call updateJobData with the right parameters', async function () {
       const runId = '1';
       const program = 'product_sync';
 

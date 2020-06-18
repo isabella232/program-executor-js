@@ -12,10 +12,10 @@ const testJobLibrary = {
   secondJob: {}
 };
 
-describe('ProgramExecutor', function() {
+describe('ProgramExecutor', function () {
   let config;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     config = {
       knex: this.db,
       tableName: 'programs',
@@ -36,8 +36,8 @@ describe('ProgramExecutor', function() {
     this.sandbox.stub(Consumer.prototype, 'process');
   });
 
-  describe('#createProgram', async function() {
-    it('should create program handler and call createProgram with given data', async function() {
+  describe('#createProgram', async function () {
+    it('should create program handler and call createProgram with given data', async function () {
       await ProgramExecutor.create(config).createProgram({
         jobs: ['current_program', 'next_program']
       });
@@ -54,8 +54,8 @@ describe('ProgramExecutor', function() {
     });
   });
 
-  describe('#processPrograms', async function() {
-    it('should create program executor processor with job library', async function() {
+  describe('#processPrograms', async function () {
+    it('should create program executor processor with job library', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       expect(ProgramExecutorProcessor.create).to.have.been.calledWith(
@@ -68,31 +68,31 @@ describe('ProgramExecutor', function() {
       expect(QueueManager.create).to.have.been.calledWith(config.amqpUrl, config.queueName);
     });
 
-    it('should create consumer with the given rabbitMq config', async function() {
+    it('should create consumer with the given rabbitMq config', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       expect(Consumer.create.lastCall.args[0]).to.eql({ default: { url: config.amqpUrl } });
     });
 
-    it('should create consumer to consume the given queue', async function() {
+    it('should create consumer to consume the given queue', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       expect(Consumer.create.lastCall.args[1]).to.containSubset({ channel: config.queueName });
     });
 
-    it('should create consumer with a logger based on the given queue name', async function() {
+    it('should create consumer with a logger based on the given queue name', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       expect(Consumer.create.lastCall.args[1]).to.containSubset({ logger: `${config.queueName}-consumer` });
     });
 
-    it('should config consumer with prefecth count and a retry time', async function() {
+    it('should config consumer with prefecth count and a retry time', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       expect(Consumer.create.lastCall.args[1]).to.containSubset({ prefetchCount: 1, retryTime: 60000 });
     });
 
-    it('should call the created executor when message callback fires', async function() {
+    it('should call the created executor when message callback fires', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       const onMessageFunction = Consumer.create.lastCall.args[1].onMessage;
@@ -102,7 +102,7 @@ describe('ProgramExecutor', function() {
       expect(ProgramExecutorProcessor.prototype.process).to.have.been.calledWith({ random: 'message' });
     });
 
-    it('should truncate log message to avoid splitting by heroku', async function() {
+    it('should truncate log message to avoid splitting by heroku', async function () {
       const veryLongError = new Error('1'.repeat(100000));
 
       ProgramExecutorProcessor.prototype.process.rejects(veryLongError);
@@ -120,14 +120,14 @@ describe('ProgramExecutor', function() {
       expect(caughtError.message.length).to.eql(255);
     });
 
-    it('should emit an error event', function(done) {
+    it('should emit an error event', function (done) {
       const sampleError = new Error('Error to be emitted');
 
       ProgramExecutorProcessor.prototype.process.rejects(sampleError);
 
       const programExecutor = ProgramExecutor.create(config);
 
-      programExecutor.on('programError', function({ error, message }) {
+      programExecutor.on('programError', function ({ error, message }) {
         expect(message).to.eql({ random: 'message' });
         expect(error.message).to.eql('Error to be emitted');
         done();
@@ -135,10 +135,10 @@ describe('ProgramExecutor', function() {
 
       programExecutor.processPrograms(testJobLibrary);
       const onMessageFunction = Consumer.create.lastCall.args[1].onMessage;
-      onMessageFunction({ random: 'message' }).catch(()=> {});
+      onMessageFunction({ random: 'message' }).catch(() => {});
     });
 
-    it('should start processing', async function() {
+    it('should start processing', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
       expect(Consumer.prototype.process).to.have.been.called;

@@ -32,9 +32,7 @@ class ProgramsRepository {
       updateQuery.errored_at = new Date();
     }
 
-    return this._db(this._tableName)
-      .where({ run_id: runId })
-      .update(updateQuery);
+    return this._db(this._tableName).where({ run_id: runId }).update(updateQuery);
   }
 
   incrementStep(runId) {
@@ -55,9 +53,7 @@ class ProgramsRepository {
   }
 
   async getProgramByRunId(runId) {
-    const result = await this._db(this._tableName)
-      .where({ run_id: runId })
-      .first();
+    const result = await this._db(this._tableName).where({ run_id: runId }).first();
 
     if (!result) {
       throw new Error(`Program not found for ${runId}.`);
@@ -84,7 +80,7 @@ class ProgramsRepository {
     const exists = await this._db.schema.hasTable(tableName);
 
     if (!exists) {
-      await this._db.schema.createTable(tableName, function(table) {
+      await this._db.schema.createTable(tableName, function (table) {
         table.increments('id').primary();
         table.string('run_id').notNullable();
         table.jsonb('jobs').notNullable();

@@ -20,14 +20,14 @@ chai.use(chaiAsPromised);
 
 global.expect = chai.expect;
 
-before(function() {
+before(function () {
   this.db = knex({
     client: 'pg',
     connection: process.env.DATABASE_URL || process.env.DATABASE_TEST_URL
   });
 });
 
-beforeEach(async function() {
+beforeEach(async function () {
   this.sinon = sinon;
   this.sandbox = sinon.createSandbox();
 
@@ -44,7 +44,7 @@ beforeEach(async function() {
   await DbCleaner.create(this.db).tearDown();
 });
 
-afterEach(async function() {
+afterEach(async function () {
   this.sandbox.restore();
   await DbCleaner.create(this.db).tearDown();
 });

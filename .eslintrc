@@ -1,11 +1,7 @@
 {
   "root": true,
-  "extends": [
-    "emarsys"
-  ],
-  "plugins": [
-    "mocha"
-  ],
+  "extends": ["emarsys"],
+  "plugins": ["mocha"],
   "env": {
     "es6": true,
     "node": true,
@@ -29,6 +25,7 @@
     "security/detect-object-injection": 0,
     "security/detect-non-literal-require": 0,
     "security/detect-non-literal-fs-filename": 0,
-    "security/detect-non-literal-regexp": 0
+    "security/detect-non-literal-regexp": 0,
+    "space-before-function-paren": 0
   }
 }

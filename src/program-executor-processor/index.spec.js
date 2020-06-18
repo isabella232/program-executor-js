@@ -6,7 +6,7 @@ const ProgramHandler = require('../program-handler');
 const JobDataHandler = require('../job-data-handler');
 const QueueManager = require('../queue-manager');
 
-describe('ProgramExecutorProcessor', function() {
+describe('ProgramExecutorProcessor', function () {
   let programHandler;
   let queueManager;
 
@@ -17,7 +17,7 @@ describe('ProgramExecutorProcessor', function() {
   let failingJobExecuteWithRetryableErrorStub;
   let programHandlerIsProgramFinishedWithErrorStub;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     const ignorableError = new Error('Something wrong happened, but ignore this!');
     ignorableError.ignorable = true;
     const retryableError = new Error('Something wrong happened, but please retry!');
@@ -72,8 +72,8 @@ describe('ProgramExecutorProcessor', function() {
     queueManager = QueueManager.create();
   });
 
-  describe('process', function() {
-    it('should execute job from program library when its the next job', async function() {
+  describe('process', function () {
+    it('should execute job from program library when its the next job', async function () {
       const programData = {
         customerId: 123,
         hostname: 'yolo.myshopify.com'
@@ -93,7 +93,7 @@ describe('ProgramExecutorProcessor', function() {
       });
     });
 
-    it('should pass job data handler for the given job and runId pair', async function() {
+    it('should pass job data handler for the given job and runId pair', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['testJob'],
         programData: {},
@@ -106,7 +106,7 @@ describe('ProgramExecutorProcessor', function() {
       expect(jobDataHandler).to.be.an.instanceOf(JobDataHandler);
     });
 
-    it('should increment try count on process', async function() {
+    it('should increment try count on process', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['testJob'],
         programData: {},
@@ -116,7 +116,7 @@ describe('ProgramExecutorProcessor', function() {
       expect(ProgramHandler.prototype.incrementStepRetryCount).to.have.been.calledWith('1');
     });
 
-    it('should cancel execution if program already encountered an error', async function() {
+    it('should cancel execution if program already encountered an error', async function () {
       programHandlerIsProgramFinishedWithErrorStub.resolves(true);
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['testJob'],
@@ -128,7 +128,7 @@ describe('ProgramExecutorProcessor', function() {
       expect(QueueManager.prototype.queueProgram).not.to.have.been.called;
     });
 
-    it('should throw an error if a job fails with non-ignorable error', async function() {
+    it('should throw an error if a job fails with non-ignorable error', async function () {
       let caughtError;
       try {
         await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
@@ -144,7 +144,7 @@ describe('ProgramExecutorProcessor', function() {
       expect(failingJobExecuteStub).to.be.called;
     });
 
-    it('should not throw an error if a job fails with an ignorable error', async function() {
+    it('should not throw an error if a job fails with an ignorable error', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['failingJobWithIgnorableError'],
         programData: {},
@@ -156,7 +156,7 @@ describe('ProgramExecutorProcessor', function() {
       );
     });
 
-    it('should set program to error if job fails with non retriable error', async function() {
+    it('should set program to error if job fails with non retriable error', async function () {
       try {
         await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
           jobs: ['failingJob'],
@@ -169,7 +169,7 @@ describe('ProgramExecutorProcessor', function() {
       }
     });
 
-    it('should update error message only if job fails with retriable error', async function() {
+    it('should update error message only if job fails with retriable error', async function () {
       try {
         await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
           jobs: ['failingJobWithRetryableError'],
@@ -185,7 +185,7 @@ describe('ProgramExecutorProcessor', function() {
       }
     });
 
-    it('should requeue with the next program', async function() {
+    it('should requeue with the next program', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['currentJob', 'nextJob'],
         programData: {
@@ -203,7 +203,7 @@ describe('ProgramExecutorProcessor', function() {
       });
     });
 
-    it('should call increment on requeue', async function() {
+    it('should call increment on requeue', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['currentJob', 'nextJob'],
         programData: {},
@@ -213,7 +213,7 @@ describe('ProgramExecutorProcessor', function() {
       expect(ProgramHandler.prototype.incrementStep).to.have.been.calledWith('1');
     });
 
-    it('should not requeue when it was the last job', async function() {
+    it('should not requeue when it was the last job', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['currentJob'],
         programData: {},
@@ -223,7 +223,7 @@ describe('ProgramExecutorProcessor', function() {
       expect(QueueManager.prototype.queueProgram).not.to.have.been.called;
     });
 
-    it('should set program to finished when it was the last job', async function() {
+    it('should set program to finished when it was the last job', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['currentJob'],
         programData: {},
@@ -233,7 +233,7 @@ describe('ProgramExecutorProcessor', function() {
       expect(ProgramHandler.prototype.finishProgram).to.have.been.calledWith('1');
     });
 
-    it('should not set job to finished when it was not the last job', async function() {
+    it('should not set job to finished when it was not the last job', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['currentJob', 'nextJob'],
         programData: {},
