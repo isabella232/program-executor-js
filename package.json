@@ -17,7 +17,7 @@
   "author": "team-shopify@emarsys.com",
   "license": "ISC",
   "dependencies": {
-    "@emartech/rabbitmq-client": "3.2.0",
+    "@emartech/rabbitmq-client": "3.5.0",
     "camelcase-keys": "6.2.2"
   },
   "engines": {
@@ -29,16 +29,16 @@
     "chai-string": "1.5.0",
     "chai-subset": "1.6.0",
     "dotenv": "8.2.0",
-    "eslint": "7.7.0",
+    "eslint": "7.11.0",
     "eslint-config-emarsys": "5.1.0",
     "eslint-plugin-mocha": "8.0.0",
     "eslint-plugin-no-only-tests": "2.4.0",
     "eslint-plugin-security": "1.4.0",
-    "knex": "0.21.5",
-    "mocha": "8.1.1",
-    "pg": "8.3.2",
-    "semantic-release": "17.1.1",
-    "sinon": "9.0.3",
+    "knex": "0.21.6",
+    "mocha": "8.2.0",
+    "pg": "8.4.1",
+    "semantic-release": "17.2.1",
+    "sinon": "9.2.0",
     "sinon-chai": "3.5.0"
   }
 }
