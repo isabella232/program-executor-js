@@ -37,7 +37,7 @@ beforeEach(async function () {
   this.sandbox.stub(Logger.prototype, 'debug');
   this.infoStub = this.sandbox.stub(Logger.prototype, 'info');
   this.warnStub = this.sandbox.stub(Logger.prototype, 'warn');
-  this.sandbox.stub(Logger.prototype, 'fromError');
+  this.formErrorStub = this.sandbox.stub(Logger.prototype, 'fromError');
   this.sandbox.stub(Logger.prototype, 'warnFromError');
   this.sandbox.stub(Logger.prototype, 'fatal');
 

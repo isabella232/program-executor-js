@@ -10,9 +10,21 @@ class QueueManager {
   }
 
   async queueProgram(queueData) {
+    const connectionType = 'programExecutor';
+
     try {
-      const rabbit = await RabbitMq.create({ default: { url: this._amqpUrl } }, this._queueName, 'default');
+      const rabbit = await RabbitMq.create(
+        { [connectionType]: { url: this._amqpUrl, useConfirmChannel: true } },
+        this._queueName,
+        connectionType
+      );
       rabbit.insert(queueData, { timestamp: new Date().getTime() });
+
+      try {
+        await rabbit.waitForConfirms();
+      } catch (error) {
+        logger.fromError('confirm-error', error, { queue_data: JSON.stringify(queueData) });
+      }
     } catch (error) {
       logger.fromError('queue-error', error, { queue_name: this._queueName });
 
