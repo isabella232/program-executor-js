@@ -51,7 +51,7 @@ class ProgramExecutorProcessor {
 
     const remainingJobs = jobs.slice(1);
     if (remainingJobs.length > 0) {
-      this._queueManager.queueProgram({ ...message, jobs: remainingJobs });
+      await this._queueManager.queueProgram({ ...message, jobs: remainingJobs });
       await this._programHandler.incrementStep(runId);
     } else {
       await this._programHandler.finishProgram(runId);
