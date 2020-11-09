@@ -5,7 +5,7 @@ const ProgramHandler = require('./program-handler');
 const ProgramsRepository = require('./repositories/programs');
 const QueueManager = require('./queue-manager');
 const ProgramExecutorProcessor = require('./program-executor-processor');
-const Consumer = require('@emartech/rabbitmq-client').Consumer;
+const Consumer = require('@emartech/rabbitmq-client').ConsumerDLXRetry;
 
 const testJobLibrary = {
   firstJob: {},

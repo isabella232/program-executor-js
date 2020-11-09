@@ -1,6 +1,6 @@
 'use strict';
 
-const consumer = require('@emartech/rabbitmq-client').Consumer;
+const consumer = require('@emartech/rabbitmq-client').ConsumerDLXRetry;
 const EventEmitter = require('events');
 
 const ProgramHandler = require('./program-handler');

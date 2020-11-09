@@ -23,7 +23,12 @@ describe('Queue-Manager', function () {
 
       expect(RabbitMq.create).to.have.been.calledWith(
         { programExecutor: { url: testAmqpUrl, useConfirmChannel: true } },
-        testChannelName
+        testChannelName,
+        'programExecutor',
+        {
+          deadLetterExchange: '',
+          deadLetterRoutingKey: `${testChannelName}-retry-60000`
+        }
       );
       expect(rabbitMock.insert).to.have.been.calledWith(queueData);
     });

@@ -16,7 +16,11 @@ class QueueManager {
       const rabbit = await RabbitMq.create(
         { [connectionType]: { url: this._amqpUrl, useConfirmChannel: true } },
         this._queueName,
-        connectionType
+        connectionType,
+        {
+          deadLetterExchange: '',
+          deadLetterRoutingKey: `${this._queueName}-retry-60000`
+        }
       );
       rabbit.insert(queueData, { timestamp: new Date().getTime() });
 
