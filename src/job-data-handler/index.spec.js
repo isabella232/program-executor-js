@@ -44,4 +44,15 @@ describe('JobDataHandler', function () {
       expect(programHandlerStub.updateJobData).to.have.been.calledWith(runId, program, { test: 'data' }, true);
     });
   });
+
+  describe('checkpoint', function () {
+    it('should call updateJobData with the right parameters', async function () {
+      const runId = '1';
+      const program = 'product_sync';
+
+      await JobDataHandler.create(programHandlerStub, runId, program).merge({ test: 'data' });
+
+      expect(programHandlerStub.updateJobData).to.have.been.calledWith(runId, program, { test: 'data' }, true);
+    });
+  });
 });

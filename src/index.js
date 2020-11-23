@@ -49,7 +49,7 @@ class ProgramExecutor extends EventEmitter {
           logger: `${this._config.queueName}-consumer`,
           channel: this._config.queueName,
           prefetchCount: 1,
-          retryTime: 60000,
+          retryTime: 1000,
           onMessage: async (message) => {
             try {
               await programExecutorProcessor.process(message);

@@ -89,7 +89,7 @@ describe('ProgramExecutor', function () {
     it('should config consumer with prefecth count and a retry time', async function () {
       await ProgramExecutor.create(config).processPrograms(testJobLibrary);
 
-      expect(Consumer.create.lastCall.args[1]).to.containSubset({ prefetchCount: 1, retryTime: 60000 });
+      expect(Consumer.create.lastCall.args[1]).to.containSubset({ prefetchCount: 1, retryTime: 1000 });
     });
 
     it('should call the created executor when message callback fires', async function () {
