@@ -22,6 +22,8 @@ describe('ProgramExecutorProcessor', function () {
     ignorableError.ignorable = true;
     const retryableError = new Error('Something wrong happened, but please retry!');
     retryableError.retryable = true;
+    const executionTimeExceededError = new Error('Timeout exceeded, but please retry!');
+    executionTimeExceededError.executionTimeExceeded = true;
 
     testJobExecuteStub = this.sandbox.stub();
     failingJobExecuteStub = this.sandbox.stub().rejects(new Error('Something wrong happened!'));
@@ -52,6 +54,11 @@ describe('ProgramExecutorProcessor', function () {
       failingJobWithRetryableError: {
         create: this.sandbox.stub().returns({
           execute: failingJobExecuteWithRetryableErrorStub
+        })
+      },
+      failingJobWithExecutionTimeExceededError: {
+        create: this.sandbox.stub().returns({
+          execute: this.sandbox.stub().rejects(executionTimeExceededError)
         })
       }
     };
@@ -106,16 +113,6 @@ describe('ProgramExecutorProcessor', function () {
       expect(jobDataHandler).to.be.an.instanceOf(JobDataHandler);
     });
 
-    it('should increment try count on process', async function () {
-      await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
-        jobs: ['testJob'],
-        programData: {},
-        runId: '1'
-      });
-
-      expect(ProgramHandler.prototype.incrementStepRetryCount).to.have.been.calledWith('1');
-    });
-
     it('should cancel execution if program already encountered an error', async function () {
       programHandlerIsProgramFinishedWithErrorStub.resolves(true);
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
@@ -144,6 +141,21 @@ describe('ProgramExecutorProcessor', function () {
       expect(failingJobExecuteStub).to.be.called;
     });
 
+    it('should throw a retryable error if a job fails with ExecutionTimeExceededError', async function () {
+      let caughtError;
+      try {
+        await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
+          jobs: ['failingJobWithExecutionTimeExceededError'],
+          programData: {},
+          runId: '1'
+        });
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError.retryable).to.be.true;
+    });
+
     it('should not throw an error if a job fails with an ignorable error', async function () {
       await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
         jobs: ['failingJobWithIgnorableError'],
@@ -167,6 +179,19 @@ describe('ProgramExecutorProcessor', function () {
         expect(ProgramHandler.prototype.setProgramToError).to.be.calledWith('1', 'Something wrong happened!');
         expect(ProgramHandler.prototype.setJobRetriableErrorMessage).not.have.been.called;
       }
+    });
+
+    it('should increment try count if job fails with retriable error', async function () {
+      try {
+        await ProgramExecutorProcessor.create(programHandler, queueManager, jobLibrary).process({
+          jobs: ['failingJobWithRetryableError'],
+          programData: {},
+          runId: '1'
+        });
+        // eslint-disable-next-line no-empty
+      } catch (_error) {}
+
+      expect(ProgramHandler.prototype.incrementStepRetryCount).to.have.been.calledWith('1');
     });
 
     it('should update error message only if job fails with retriable error', async function () {

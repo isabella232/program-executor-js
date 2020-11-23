@@ -1,7 +1,8 @@
 'use strict';
 
 const logger = require('@emartech/json-logger')('program-executor');
-const JobDataHandler = require('../job-data-handler');
+const RetryableError = require('../retryable-error');
+const JobHandler = require('../job-data-handler');
 
 class ProgramExecutorProcessor {
   constructor(programHandler, queueManager, jobLibrary) {
@@ -14,18 +15,21 @@ class ProgramExecutorProcessor {
     const { runId } = message;
 
     try {
-      await this._programHandler.incrementStepRetryCount(runId);
       await this._executeNextJob(message);
     } catch (error) {
       if (error.retryable) {
+        await this._programHandler.incrementStepRetryCount(runId);
         await this._programHandler.setJobRetriableErrorMessage(runId, error.message);
-      } else {
-        await this._programHandler.setProgramToError(runId, error.message);
-      }
-
-      if (!error.ignorable) {
         throw error;
       }
+
+      if (error.executionTimeExceeded) {
+        throw RetryableError.decorate(error);
+      }
+
+      await this._programHandler.setProgramToError(runId, error.message);
+
+      if (!error.ignorable) throw error;
     }
   }
 
@@ -42,8 +46,8 @@ class ProgramExecutorProcessor {
     this.log('executing-job', { ...message, currentJob });
 
     if (this._jobLibrary[currentJob]) {
-      const jobDataHandler = JobDataHandler.create(this._programHandler, runId, currentJob);
-      await this._jobLibrary[currentJob].create(programData).execute(message, jobDataHandler);
+      const jobHandler = JobHandler.create(this._programHandler, runId, currentJob);
+      await this._jobLibrary[currentJob].create(programData).execute(message, jobHandler);
       this.log('job-finished', { ...message, currentJob });
     } else {
       this.log('job-skipped', { ...message, currentJob, level: 'warn' });
