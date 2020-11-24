@@ -19,7 +19,7 @@ class QueueManager {
         connectionType,
         {
           deadLetterExchange: '',
-          deadLetterRoutingKey: `${this._queueName}-retry-60000`
+          deadLetterRoutingKey: `${this._queueName}-retry-1000`
         }
       );
       rabbit.insert(queueData, { timestamp: new Date().getTime() });

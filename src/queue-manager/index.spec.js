@@ -27,7 +27,7 @@ describe('Queue-Manager', function () {
         'programExecutor',
         {
           deadLetterExchange: '',
-          deadLetterRoutingKey: `${testChannelName}-retry-60000`
+          deadLetterRoutingKey: `${testChannelName}-retry-1000`
         }
       );
       expect(rabbitMock.insert).to.have.been.calledWith(queueData);
