@@ -8,14 +8,18 @@ class ProgramsRepository {
     this._tableName = tableName;
   }
 
-  async save({ runId, programData, jobs, jobData }) {
+  async save({ runId, programData, jobs, jobData, step = 0, finishedAt, erroredAt, errorMessage, stepRetryCount }) {
     await this._createTableIfNotExists(this._tableName);
     return this._db(this._tableName).insert({
       run_id: runId,
       jobs: JSON.stringify(jobs),
-      step: 0,
+      step,
       job_data: jobData,
-      program_data: programData
+      program_data: programData,
+      finished_at: finishedAt,
+      errored_at: erroredAt,
+      error_message: errorMessage,
+      step_retry_count: stepRetryCount
     });
   }
 

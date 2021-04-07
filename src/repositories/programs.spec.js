@@ -30,16 +30,34 @@ describe('ProgramsRepository', () => {
     it('saves program', async function () {
       const jobs = ['a', 'b'];
       const jobData = { product_sync: { page: 40 } };
-      await programsRepository.save({ runId, programData, jobs, jobData });
+      const finishedAt = new Date();
+      const erroredAt = new Date();
+      const errorMessage = 'someErrorMessage';
+      const stepRetryCount = 1;
+      await programsRepository.save({
+        runId,
+        programData,
+        jobs,
+        jobData,
+        step: 0,
+        finishedAt,
+        erroredAt,
+        errorMessage,
+        stepRetryCount
+      });
 
       const result = await programsRepository.getProgramByRunId(runId);
 
       expect(result).to.containSubset({
         runId,
+        programData,
         jobs,
         jobData,
-        programData,
-        step: 0
+        step: 0,
+        finishedAt,
+        erroredAt,
+        errorMessage,
+        stepRetryCount
       });
     });
 
