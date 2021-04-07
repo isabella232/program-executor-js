@@ -30,7 +30,7 @@ describe('ProgramsRepository', () => {
     it('saves program', async function () {
       const jobs = ['a', 'b'];
       const jobData = { product_sync: { page: 40 } };
-      await programsRepository.save(runId, programData, jobs, jobData);
+      await programsRepository.save({ runId, programData, jobs, jobData });
 
       const result = await programsRepository.getProgramByRunId(runId);
 
@@ -44,12 +44,12 @@ describe('ProgramsRepository', () => {
     });
 
     it('creates table if not exists and saves program', async function () {
-      await programsRepository.save(runId, programData, ['a']);
+      await programsRepository.save({ runId, programData, jobs: ['a'] });
       await this.db.schema.dropTable('programs');
 
       const jobs = ['a', 'b'];
       const jobData = { product_sync: { page: 40 } };
-      await programsRepository.save(runId, programData, jobs, jobData);
+      await programsRepository.save({ runId, programData, jobs, jobData });
 
       const result = await programsRepository.getProgramByRunId(runId);
 
@@ -65,7 +65,7 @@ describe('ProgramsRepository', () => {
 
   describe('#finishProgram', () => {
     it('should set finished_at and reset retry counter', async function () {
-      await programsRepository.save(runId, programData, ['a']);
+      await programsRepository.save({ runId, programData, jobs: ['a'] });
       await programsRepository.incrementStepRetryCount(runId);
 
       const oldDate = await resetUpdatedAt(runId);
@@ -81,7 +81,7 @@ describe('ProgramsRepository', () => {
 
   describe('#setProgramToError', () => {
     it('should set errored_at and error_message without setting finished_at', async function () {
-      await programsRepository.save(runId, programData, ['a']);
+      await programsRepository.save({ runId, programData, jobs: ['a'] });
 
       const oldDate = await resetUpdatedAt(runId);
 
@@ -95,7 +95,7 @@ describe('ProgramsRepository', () => {
     });
 
     it('should set and error_message and updated_at without setting finished_at or errored_at', async function () {
-      await programsRepository.save(runId, programData, ['a']);
+      await programsRepository.save({ runId, programData, jobs: ['a'] });
 
       const oldDate = await resetUpdatedAt(runId);
 
@@ -109,7 +109,7 @@ describe('ProgramsRepository', () => {
     });
 
     it('should trim error message', async function () {
-      await programsRepository.save(runId, programData, ['a']);
+      await programsRepository.save({ runId, programData, jobs: ['a'] });
       await programsRepository.setProgramToError(runId, 'a'.repeat(256), false);
 
       let errorThrown;
@@ -126,7 +126,7 @@ describe('ProgramsRepository', () => {
 
   describe('#incrementStep', () => {
     it('should increment step by one and reset retry counter', async function () {
-      await programsRepository.save(runId, programData, ['a']);
+      await programsRepository.save({ runId, programData, jobs: ['a'] });
       await programsRepository.incrementStepRetryCount(runId);
 
       const result = await programsRepository.getProgramByRunId(runId);
@@ -143,7 +143,7 @@ describe('ProgramsRepository', () => {
 
   describe('#incrementStepRetryCount', () => {
     it('should increment step retry counter', async function () {
-      await programsRepository.save(runId, programData, ['a']);
+      await programsRepository.save({ runId, programData, jobs: ['a'] });
       const result = await programsRepository.getProgramByRunId(runId);
       expect(result.stepRetryCount).to.eql(0);
 
@@ -158,7 +158,7 @@ describe('ProgramsRepository', () => {
   describe('#getProgramByRunId', () => {
     it('returns program with runId', async function () {
       const jobs = ['a', 'b'];
-      await programsRepository.save(runId, programData, jobs);
+      await programsRepository.save({ runId, programData, jobs });
 
       const result = await programsRepository.getProgramByRunId(runId);
 
@@ -170,7 +170,7 @@ describe('ProgramsRepository', () => {
     });
 
     it('throws an error if program not found', async function () {
-      await programsRepository.save(runId, programData, []);
+      await programsRepository.save({ runId, programData, jobs: [] });
 
       await expect(programsRepository.getProgramByRunId('NON_EXISTING_RUN_ID')).to.be.rejected;
     });
@@ -179,7 +179,7 @@ describe('ProgramsRepository', () => {
   describe('#setJobDataByRunId', () => {
     it('should update jobData with the given payload', async function () {
       const jobs = ['a', 'b'];
-      await programsRepository.save(runId, programData, jobs);
+      await programsRepository.save({ runId, programData, jobs });
 
       const oldDate = await resetUpdatedAt(runId);
       await programsRepository.setJobDataByRunId(runId, { product_sync: { page: 1 } });
@@ -195,9 +195,9 @@ describe('ProgramsRepository', () => {
 
   describe('#getUnfinishedPrograms', () => {
     it('returns programs without finishedAt or erroredAt set', async function () {
-      await programsRepository.save('1', programData, []);
-      await programsRepository.save('2', programData, []);
-      await programsRepository.save('3', programData, []);
+      await programsRepository.save({ runId: '1', programData, jobs: [] });
+      await programsRepository.save({ runId: '2', programData, jobs: [] });
+      await programsRepository.save({ runId: '3', programData, jobs: [] });
       await programsRepository.setProgramToError('1', 'Something wrong happened!');
       await programsRepository.finishProgram('3');
 

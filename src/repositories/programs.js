@@ -8,7 +8,7 @@ class ProgramsRepository {
     this._tableName = tableName;
   }
 
-  async save(runId, programData, jobs, jobData) {
+  async save({ runId, programData, jobs, jobData }) {
     await this._createTableIfNotExists(this._tableName);
     return this._db(this._tableName).insert({
       run_id: runId,

@@ -10,7 +10,7 @@ class ProgramHandler {
 
   async createProgram({ programData, jobs, jobData = {} }) {
     const runId = RunIdGenerator.generate();
-    await this._programsRepository.save(runId, programData, jobs, jobData);
+    await this._programsRepository.save({ runId, programData, jobs, jobData });
     await this._queueManager.queueProgram({ jobs, programData, runId });
     return runId;
   }
