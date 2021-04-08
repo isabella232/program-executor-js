@@ -17,6 +17,8 @@ const QUERY = `
     erroredAt
     errorMessage
     stepRetryCount
+    createdAt,
+    updatedAt
   }
 }`;
 
@@ -54,6 +56,9 @@ describe('schema', function () {
       jobData: JSON.stringify({}),
       programData: JSON.stringify(program1.programData)
     });
+    expect(data.programs[0].createdAt).not.to.be.undefined;
+    expect(data.programs[0].updatedAt).not.to.be.undefined;
+
     expect(data.programs[1]).to.containSubset({
       ...program2,
       jobData: JSON.stringify(program2.jobData),
@@ -61,5 +66,7 @@ describe('schema', function () {
       finishedAt: program2.finishedAt.getTime().toString(),
       erroredAt: program2.erroredAt.getTime().toString()
     });
+    expect(data.programs[1].createdAt).not.to.be.undefined;
+    expect(data.programs[1].updatedAt).not.to.be.undefined;
   });
 });

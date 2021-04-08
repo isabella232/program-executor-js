@@ -45,6 +45,12 @@ const Program = new GraphQLObjectType({
     },
     stepRetryCount: {
       type: GraphQLInt
+    },
+    createdAt: {
+      type: GraphQLString
+    },
+    updatedAt: {
+      type: GraphQLString
     }
   })
 });
@@ -87,7 +93,9 @@ const camelCaseAndStringify = function (data) {
     finishedAt: data.finished_at,
     erroredAt: data.errored_at,
     errorMessage: data.error_message,
-    stepRetryCount: data.step_retry_count
+    stepRetryCount: data.step_retry_count,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at
   };
 };
 
