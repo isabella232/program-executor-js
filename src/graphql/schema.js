@@ -7,7 +7,10 @@ const {
   GraphQLList,
   GraphQLID,
   GraphQLString,
-  GraphQLInt
+  GraphQLInt,
+  GraphQLBoolean,
+  GraphQLInputObjectType,
+  GraphQLEnumType
 } = require('graphql');
 
 const PG_ERROR_CODE_TABLE_DOES_NOT_EXIST = '42P01';
@@ -55,6 +58,42 @@ const Program = new GraphQLObjectType({
   })
 });
 
+const ProgramFilterInput = new GraphQLInputObjectType({
+  name: 'ProgramFilter',
+  fields: {
+    inProgressOnly: {
+      type: GraphQLBoolean,
+      defaultValue: false
+    },
+    stepRetryCountGte: {
+      type: GraphQLInt,
+      defaultValue: 0
+    }
+  }
+});
+
+const OrderByEnumType = new GraphQLEnumType({
+  name: 'OrderByEnum',
+  values: {
+    ASC: {
+      value: 'ASC'
+    },
+    DESC: {
+      value: 'DESC'
+    }
+  }
+});
+
+const OrderByInput = new GraphQLInputObjectType({
+  name: 'OrderByInput',
+  fields: {
+    id: {
+      type: OrderByEnumType,
+      defaultValue: OrderByEnumType.getValue('DESC')
+    }
+  }
+});
+
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'Query',
@@ -63,12 +102,29 @@ const schema = new GraphQLSchema({
         type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Program))),
         args: {
           filter: {
-            type: GraphQLString
+            type: ProgramFilterInput
+          },
+          orderBy: {
+            type: OrderByInput
           }
         },
-        resolve: async (_root, _args, { knex, tableName }) => {
+        resolve: async (_root, args, { knex, tableName }) => {
+          let query = knex(tableName);
+
+          if (args.filter && args.filter.inProgressOnly) {
+            query = query.whereRaw('finished_at is null AND errored_at is null');
+          }
+
+          if (args.filter && args.filter.stepRetryCountGte) {
+            query = query.where('step_retry_count', '>=', args.filter.stepRetryCountGte);
+          }
+
+          if (args.orderBy && args.orderBy.id) {
+            query = query.orderBy('id', args.orderBy.id);
+          }
+
           try {
-            const programs = await knex(tableName).select();
+            const programs = await query;
             return programs.map(camelCaseAndStringify);
           } catch (err) {
             if (err.code === PG_ERROR_CODE_TABLE_DOES_NOT_EXIST) {
